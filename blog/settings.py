@@ -139,6 +139,6 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_THROTTLE_RATES': {
         'user': '5/minute',
-        'blogpost' : '1/day'
+        'blogpost' : '10/day'
     }
 }

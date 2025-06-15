@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .permissions import IsOwnerOrReadOnly
 from rest_framework.throttling import UserRateThrottle
 from .throttling import BlogPostThrottle
+from .pagination import BlogPagination, CommentPagination
 
 # Create your views here.
 class BlogList(ListCreateAPIView):
@@ -13,6 +14,7 @@ class BlogList(ListCreateAPIView):
     serializer_class = BlogSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, )
     throttle_classes = (BlogPostThrottle, )
+    pagination_class = BlogPagination
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -26,6 +28,7 @@ class CommentList(ListCreateAPIView):
     serializer_class = CommentSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, )
     throttle_classes = (UserRateThrottle, )
+    pagination_class = CommentPagination
 
     def get_queryset(self):
         return Comment.objects.filter(blog_id=self.kwargs['pk'])
