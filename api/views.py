@@ -1,12 +1,15 @@
 from django.shortcuts import render
+from rest_framework.response import Response
 from .models import Blog, Comment, Like
-from .serializers import BlogSerializer, CommentSerializer, LikeSerializer
+from .serializers import BlogSerializer, CommentSerializer, LikeSerializer, UserSerializer
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .permissions import IsOwnerOrReadOnly
 from rest_framework.throttling import UserRateThrottle
 from .throttling import BlogPostThrottle
 from .pagination import BlogPagination, CommentPagination
+from rest_framework.decorators import api_view
+from rest_framework_simplejwt.tokens import RefreshToken
 
 # Create your views here.
 class BlogList(ListCreateAPIView):
@@ -56,3 +59,44 @@ class LikeDetail(RetrieveUpdateDestroyAPIView):
     queryset = Like.objects.all()
     serializer_class = LikeSerializer
     permission_classes = (IsOwnerOrReadOnly,)
+
+'''@api_view(['POST'])
+def RegisterationView(request):
+    if request.method=='POST':
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            account = serializer.save()
+
+            token = RefreshToken.for_user(account)
+
+            data = {
+                'account' : serializer.data,
+                'token' : {
+                    'access' : str(token.access_token),
+                    'refresh' : str(token)
+                }
+            }
+
+            return Response(data, status=201)
+        return Response(serializer.errors)
+'''
+
+@api_view(['POST'])
+def RegisterationView(request):
+    if request.method == 'POST':
+        serializer = UserSerializer(data=request.data)
+
+        if serializer.is_valid():
+            account = serializer.save()
+            token = RefreshToken.for_user(account)
+
+            data = {
+                'account':serializer.data,
+                'token': {
+                    'refresh' : str(token),
+                    'access' : str(token.access_token)
+                }
+            }
+
+            return Response(data)
+        return Response(serializer.errors)
